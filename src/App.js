@@ -37,6 +37,24 @@ const defaultSequences = [
   }
 ];
 
+const encouragementMessages = [
+  "Great job on that block! Now, let's tackle the next one with the same energy!",
+  "You nailed it! On to the next block—let's keep the momentum going!",
+  "Fantastic work! Let's take it to the next level in the next block!",
+  "One block down—amazing focus! Let's move to the next and keep growing!",
+  "That was awesome! Ready to power through the next block? You've got this!",
+  "You're doing great! Let's bring that same focus to the next block!",
+  "Bravo! You've got the rhythm—let's carry it into the next block!",
+  "You crushed it! Let's dive into the next block with the same dedication!",
+  "Great focus! Time to move forward and shine in the next block!",
+  "Amazing effort! Ready to conquer the next block? I believe in you!",
+  "Well done! Let's jump into the next block and make it even better!",
+  "Incredible work! Let's keep that flow going into the next block!",
+  "You're on fire! Keep that drive and head into the next block!",
+  "Excellent progress! Let's push on and make the next block count!",
+  "Block complete—fantastic! Keep the energy high as we move to the next!"
+];
+
 function App() {
   const [blocks, setBlocks] = useState([]);
   const [currentBlockIndex, setCurrentBlockIndex] = useState(null);
@@ -59,6 +77,7 @@ function App() {
   const [colorPickerPosition, setColorPickerPosition] = useState({ top: 0, left: 0 });
   const [showNewSequenceDialog, setShowNewSequenceDialog] = useState(false);
   const [newSequenceName, setNewSequenceName] = useState('');
+  const [currentMessage, setCurrentMessage] = useState('');
 
   const colors = [
     '#4CAF50', '#2196F3', '#FFC107', '#E91E63', '#9C27B0',
@@ -293,6 +312,9 @@ function App() {
             setIsRunning(false);
             setShowConfirmation(true);
             audio.play();
+            // Select a random message when the timer runs out
+            const randomIndex = Math.floor(Math.random() * encouragementMessages.length);
+            setCurrentMessage(encouragementMessages[randomIndex]);
             return 0;
           }
         });
@@ -520,7 +542,7 @@ function App() {
           </div>
           {showConfirmation && (
             <div className="confirmation-dialog">
-              <p>Timer finished. Move to the next block?</p>
+              <p>{currentMessage}</p>
               <button onClick={handleConfirmation}>OK</button>
             </div>
           )}
