@@ -101,21 +101,21 @@ function App() {
   ];
 
   const encouragementMessages = [
-    "Great job on that block! Now, let's tackle the next one with the same energy!",
-    "You nailed it! On to the next block—let's keep the momentum going!",
-    "Fantastic work! Let's take it to the next level in the next block!",
-    "One block down—amazing focus! Let's move to the next and keep growing!",
-    "That was awesome! Ready to power through the next block? You've got this!",
-    "You're doing great! Let's bring that same focus to the next block!",
-    "Bravo! You've got the rhythm—let's carry it into the next block!",
-    "You crushed it! Let's dive into the next block with the same dedication!",
-    "Great focus! Time to move forward and shine in the next block!",
-    "Amazing effort! Ready to conquer the next block? I believe in you!",
-    "Well done! Let's jump into the next block and make it even better!",
-    "Incredible work! Let's keep that flow going into the next block!",
-    "You're on fire! Keep that drive and head into the next block!",
-    "Excellent progress! Let's push on and make the next block count!",
-    "Block complete—fantastic! Keep the energy high as we move to the next!"
+    "Great job on that task! Now, let's tackle the next one with the same energy!",
+    "You nailed it! On to the next task—let's keep the momentum going!",
+    "Fantastic work! Let's take it to the next level in the next task!",
+    "One task down—amazing focus! Let's move to the next and keep growing!",
+    "That was awesome! Ready to power through the next task? You've got this!",
+    "You're doing great! Let's bring that same focus to the next task!",
+    "Bravo! You've got the rhythm—let's carry it into the next task!",
+    "You crushed it! Let's dive into the next task with the same dedication!",
+    "Great focus! Time to move forward and shine in the next task!",
+    "Amazing effort! Ready to conquer the next task? I believe in you!",
+    "Well done! Let's jump into the next task and make it even better!",
+    "Incredible work! Let's keep that flow going into the next task!",
+    "You're on fire! Keep that drive and head into the next task!",
+    "Excellent progress! Let's push on and make the next task count!",
+    "Task complete—fantastic! Keep the energy high as we move to the next!"
   ];
 
   useEffect(() => {
