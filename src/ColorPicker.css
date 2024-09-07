@@ -1,0 +1,78 @@
+.color-picker-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: transparent;
+    display: block;
+    z-index: 1000;
+  }
+  
+  .color-picker-popup {
+    background-color: white;
+    border-radius: 8px;
+    padding: 10px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Changed from 4 to 3 columns */
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1001;
+    width: 135px; /* Adjusted width for 3 columns */
+    position: relative;
+  }
+
+  .color-picker-popup::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: -10px;
+    width: 0;
+    height: 0;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-left: 10px solid white;
+    transform: translateY(-50%);
+  }
+
+  .color-picker-popup::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: -11px;
+    width: 0;
+    height: 0;
+    border-top: 11px solid transparent;
+    border-bottom: 11px solid transparent;
+    border-left: 11px solid rgba(0, 0, 0, 0.1);
+    transform: translateY(-50%);
+    z-index: -1;
+  }
+  
+  .color-option {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .color-option:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .color-option:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.2);
+  }
+  
+  .color-picker-title {
+    grid-column: 1 / -1;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 16px;
+    color: #333;
+  }
