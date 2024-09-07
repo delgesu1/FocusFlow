@@ -297,6 +297,7 @@ function App() {
     setIsRunning(false);
     setShowLoadDialog(false);
     setDynamicTimeAdjustments({});
+    setIsSidebarOpen(false); // Close the sidebar
   };
 
   // Modify the main timer useEffect
