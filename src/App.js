@@ -10,13 +10,43 @@ function getRandomColor(colors) {
   return colors[Math.floor(Math.random() * colors.length)];
 }
 
+const defaultSequences = [
+  {
+    name: "Technique Routine",
+    blocks: [
+      { name: "Scales: Acceleration", duration: 1200, color: "#5271C4" },
+      { name: "Scales: Bowings", duration: 1200, color: "#4A97B8" },
+      { name: "Vamos exercise", duration: 600, color: "#45A177" },
+      { name: "Break", duration: 900, color: "#5C9D8F" },
+      { name: "Scales: 3rds and 6ths", duration: 1200, color: "#6EA35C" },
+      { name: "Dounis Trills", duration: 600, color: "#93A545" },
+      { name: "Shifting Exercise", duration: 300, color: "#B8A53E" }
+    ]
+  },
+  {
+    name: "Repertoire",
+    blocks: [
+      { name: "Debussy Sonata 3rd Mvt passages", duration: 2400, color: "#D27F55" },
+      { name: "Debussy Sonata 2nd Mvt passages", duration: 1800, color: "#D76663" },
+      { name: "Debussy Sonata 1st Mvt passages", duration: 1800, color: "#B2568E" },
+      { name: "Franck passages", duration: 1800, color: "#8A6FB3" },
+      { name: "Break", duration: 900, color: "#7387C2" },
+      { name: "Mock Performance Debussy 2x", duration: 1800, color: "#5967A1" },
+      { name: "Mock Performance Franck", duration: 1800, color: "#4A8475" }
+    ]
+  }
+];
+
 function App() {
   const [blocks, setBlocks] = useState([]);
   const [currentBlockIndex, setCurrentBlockIndex] = useState(null);
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const [savedSequences, setSavedSequences] = useState([]);
+  const [savedSequences, setSavedSequences] = useState(() => {
+    const saved = localStorage.getItem('savedSequences');
+    return saved ? JSON.parse(saved) : defaultSequences;
+  });
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [currentSequenceName, setCurrentSequenceName] = useState('');
   const [showLoadDialog, setShowLoadDialog] = useState(false);
@@ -57,11 +87,11 @@ function App() {
   ];
 
   useEffect(() => {
-    const saved = localStorage.getItem('savedSequences');
-    if (saved) {
-      setSavedSequences(JSON.parse(saved));
+    if (savedSequences.length === 0) {
+      setSavedSequences(defaultSequences);
     }
-  }, []);
+    localStorage.setItem('savedSequences', JSON.stringify(savedSequences));
+  }, [savedSequences]);
 
   useEffect(() => {
     if (blocks.length > 0 && timeRemaining === 0 && currentBlockIndex !== null) {
@@ -327,10 +357,11 @@ function App() {
     };
   }, [blocks]);
 
-  const deleteSequence = (sequenceName) => {
-    const updatedSequences = savedSequences.filter(seq => seq.name !== sequenceName);
-    setSavedSequences(updatedSequences);
-    localStorage.setItem('savedSequences', JSON.stringify(updatedSequences));
+  const deleteSequence = (name) => {
+    setSavedSequences(prevSequences => {
+      const updatedSequences = prevSequences.filter(seq => seq.name !== name);
+      return updatedSequences.length > 0 ? updatedSequences : defaultSequences;
+    });
   };
 
   useEffect(() => {
@@ -372,7 +403,7 @@ function App() {
 
   const renderSavedSequences = () => {
     return savedSequences.map((sequence, index) => (
-      <div key={index} className="sequence-item">
+      <div key={index} className={`sequence-item ${defaultSequences.some(seq => seq.name === sequence.name) ? 'default-sequence' : ''}`}>
         <h4>{sequence.name}</h4>
         <div className="mini-blocks-container">
           {sequence.blocks.map((block, blockIndex) => (
