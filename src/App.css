@@ -87,7 +87,7 @@ header h1 {
   color: white;
 }
 
-.sequence-header {
+.flow-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -128,7 +128,7 @@ header h1 {
   font-size: 18px;
 }
 
-.sequence-header h2 {
+.flow-header h2 {
   margin: 0;
   font-size: 18px;
   font-weight: 400;
@@ -136,52 +136,42 @@ header h1 {
   flex-grow: 1;
 }
 
-.sequence-actions {
+.flow-actions {
   display: flex;
-  gap: 15px;
+  gap: 12px; /* Slightly increased gap */
 }
 
-.sequence-actions .icon-button {
+.icon-button {
   background-color: transparent;
   border: none;
   cursor: pointer;
-  font-size: 24px;
+  font-size: 22px; /* Increased from 20px */
   color: #555;
-  transition: all 0.3s ease;
-  width: 44px;
-  height: 44px;
+  transition: color 0.3s ease, transform 0.2s ease;
+  padding: 6px; /* Increased from 5px */
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  position: relative;
-  overflow: hidden;
+  width: 36px; /* Added fixed width */
+  height: 36px; /* Added fixed height */
+  border-radius: 50%; /* Makes the button circular */
 }
 
-.sequence-actions .icon-button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, #6e8efb, #a777e3);
-  opacity: 0;
-  transition: opacity 0.3s ease;
+.icon-button:hover {
+  color: transparent;
 }
 
-.sequence-actions .icon-button:hover::before {
-  opacity: 1;
+.icon-button:hover svg {
+  fill: url(#purple-gradient);
 }
 
-.sequence-actions .icon-button svg {
-  position: relative;
-  z-index: 1;
-  transition: color 0.3s ease;
+.icon-button:active {
+  transform: scale(0.95); /* Slight shrink effect when clicked */
 }
 
-.sequence-actions .icon-button:hover svg {
-  color: white;
+/* Remove this if you don't want any background effect on hover */
+.icon-button:hover::before {
+  content: none;
 }
 
 /* Define the purple gradient */
@@ -220,31 +210,84 @@ header h1 {
 </svg>
 */
 
-.sequence-list {
+.flow-list {
   flex-grow: 1;
   overflow-y: auto;
   padding: 20px;
   padding-bottom: 30px; /* Add some bottom padding */
 }
 
-.sequence-item {
-  background: linear-gradient(135deg, #f6f9fc, #eef2f7);
-  padding: 15px;
-  border-radius: 8px;
+.today-routine {
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
+  color: white;
+  margin-bottom: 30px; /* Increase space after Today routine */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.routines-header-container {
   display: flex;
-  flex-direction: column;
-  position: relative;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 15px;
 }
 
-.sequence-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.09);
+.routines-header {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding-bottom: 5px;
+  background: none;
+  border: none;
+  /* Purple gradient for text */
+  background: linear-gradient(135deg, #6e8efb 0%, #a777e3 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
 }
 
-.sequence-item h4 {
+.add-routine-button {
+  background: none;
+  border: none;
+  color: #6e8efb;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.add-routine-button:hover {
+  background-color: rgba(110, 142, 251, 0.1);
+  transform: scale(1.1);
+}
+
+.add-routine-button:active {
+  transform: scale(0.95);
+}
+
+.flow-item {
+  background: linear-gradient(135deg, #f6f9fc, #eef2f7);
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.flow-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.flow-item h4 {
   margin: 0 0 10px 0;
   color: #333;
   font-weight: 500;
@@ -264,13 +307,13 @@ header h1 {
   color: white;
 }
 
-.sequence-item-buttons {
+.flow-item-buttons {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.sequence-item-buttons button {
+.flow-item-buttons button {
   padding: 5px 10px;
   border: none;
   border-radius: 3px;
@@ -280,18 +323,18 @@ header h1 {
   transition: background-color 0.3s ease;
 }
 
-.sequence-item-buttons button:hover {
+.flow-item-buttons button:hover {
   background-color: rgba(0, 0, 0, 0.2);
 }
 
-.delete-sequence-button {
+.delete-flow-button {
   font-size: 20px;
   font-weight: 300;
   opacity: 0.7;
   transition: opacity 0.3s ease;
 }
 
-.delete-sequence-button:hover {
+.delete-flow-button:hover {
   opacity: 1;
 }
 
@@ -440,7 +483,7 @@ button:hover {
   background-color: #e68a00;
 }
 
-.timer-sequence {
+.timer-flow {
   display: flex;
   flex-direction: column;
   gap: 15px;
@@ -730,7 +773,7 @@ button:hover {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
-.new-sequence-dialog {
+.new-flow-dialog {
   position: fixed;
   top: 50%;
   left: 50%;
@@ -743,7 +786,7 @@ button:hover {
   width: 300px;
 }
 
-.new-sequence-dialog input {
+.new-flow-dialog input {
   width: 100%;
   padding: 10px;
   margin-bottom: 10px;
@@ -751,7 +794,7 @@ button:hover {
   border-radius: 4px;
 }
 
-.new-sequence-dialog button {
+.new-flow-dialog button {
   padding: 10px 20px;
   margin-right: 10px;
   border: none;
@@ -759,12 +802,12 @@ button:hover {
   cursor: pointer;
 }
 
-.new-sequence-dialog button:first-of-type {
+.new-flow-dialog button:first-of-type {
   background-color: #4CAF50;
   color: white;
 }
 
-.new-sequence-dialog button:last-of-type {
+.new-flow-dialog button:last-of-type {
   background-color: #f44336;
   color: white;
 }
@@ -1116,20 +1159,26 @@ button:hover {
   transform: translateY(-2px);
 }
 
-.sequence-item {
+.flow-item {
   background-color: #f5f5f5;
   border-radius: 8px;
   padding: 12px;
   margin-bottom: 12px;
 }
 
-.sequence-item h4 {
+.flow-item h4 {
   margin-top: 0;
   margin-bottom: 8px;
 }
 
-.sequence-item-buttons {
+.flow-item-buttons {
   display: flex;
   justify-content: space-between;
   margin-top: 8px;
+}
+
+.no-blocks-message {
+  font-style: italic;
+  color: #888;
+  font-size: 0.9em;
 }

@@ -10,73 +10,68 @@ function getRandomColor(colors) {
   return colors[Math.floor(Math.random() * colors.length)];
 }
 
-const defaultSequences = [
+const STOCK_FLOWS = [
   {
+    id: "technique-routine",
     name: "Technique Routine",
     blocks: [
-      { name: "Scales: Acceleration", duration: 1200, color: "#5271C4" },
-      { name: "Scales: Bowings", duration: 1200, color: "#4A97B8" },
-      { name: "Vamos exercise", duration: 600, color: "#45A177" },
-      { name: "Break", duration: 900, color: "#5C9D8F" },
-      { name: "Scales: 3rds and 6ths", duration: 1200, color: "#6EA35C" },
-      { name: "Dounis Trills", duration: 600, color: "#93A545" },
-      { name: "Shifting Exercise", duration: 300, color: "#B8A53E" }
+      { id: "scales-acceleration", name: "Scales: Acceleration", duration: 1200, color: "#5271C4" },
+      { id: "scales-bowings", name: "Scales: Bowings", duration: 1200, color: "#4A97B8" },
+      { id: "vamos-exercise", name: "Vamos exercise", duration: 600, color: "#45A177" },
+      { id: "break-1", name: "Break", duration: 900, color: "#5C9D8F" },
+      { id: "scales-3rds-6ths", name: "Scales: 3rds and 6ths", duration: 1200, color: "#6EA35C" },
+      { id: "dounis-trills", name: "Dounis Trills", duration: 600, color: "#93A545" },
+      { id: "shifting-exercise", name: "Shifting Exercise", duration: 300, color: "#B8A53E" }
     ]
   },
   {
+    id: "repertoire",
     name: "Repertoire",
     blocks: [
-      { name: "Debussy Sonata 3rd Mvt passages", duration: 2400, color: "#D27F55" },
-      { name: "Debussy Sonata 2nd Mvt passages", duration: 1800, color: "#D76663" },
-      { name: "Debussy Sonata 1st Mvt passages", duration: 1800, color: "#B2568E" },
-      { name: "Franck passages", duration: 1800, color: "#8A6FB3" },
-      { name: "Break", duration: 900, color: "#7387C2" },
-      { name: "Mock Performance Debussy 2x", duration: 1800, color: "#5967A1" },
-      { name: "Mock Performance Franck", duration: 1800, color: "#4A8475" }
+      { id: "debussy-3rd-mvt", name: "Debussy Sonata 3rd Mvt passages", duration: 2400, color: "#D27F55" },
+      { id: "debussy-2nd-mvt", name: "Debussy Sonata 2nd Mvt passages", duration: 1800, color: "#D76663" },
+      { id: "debussy-1st-mvt", name: "Debussy Sonata 1st Mvt passages", duration: 1800, color: "#B2568E" },
+      { id: "franck-passages", name: "Franck passages", duration: 1800, color: "#8A6FB3" },
+      { id: "break-2", name: "Break", duration: 900, color: "#7387C2" },
+      { id: "mock-performance-debussy", name: "Mock Performance Debussy 2x", duration: 1800, color: "#5967A1" },
+      { id: "mock-performance-franck", name: "Mock Performance Franck", duration: 1800, color: "#4A8475" }
     ]
   }
 ];
 
-const encouragementMessages = [
-  "Great job on that block! Now, let's tackle the next one with the same energy!",
-  "You nailed it! On to the next block—let's keep the momentum going!",
-  "Fantastic work! Let's take it to the next level in the next block!",
-  "One block down—amazing focus! Let's move to the next and keep growing!",
-  "That was awesome! Ready to power through the next block? You've got this!",
-  "You're doing great! Let's bring that same focus to the next block!",
-  "Bravo! You've got the rhythm—let's carry it into the next block!",
-  "You crushed it! Let's dive into the next block with the same dedication!",
-  "Great focus! Time to move forward and shine in the next block!",
-  "Amazing effort! Ready to conquer the next block? I believe in you!",
-  "Well done! Let's jump into the next block and make it even better!",
-  "Incredible work! Let's keep that flow going into the next block!",
-  "You're on fire! Keep that drive and head into the next block!",
-  "Excellent progress! Let's push on and make the next block count!",
-  "Block complete—fantastic! Keep the energy high as we move to the next!"
-];
-
 function App() {
+  const [savedFlows, setSavedFlows] = useState(() => {
+    const saved = localStorage.getItem('savedFlows');
+    let flows = saved ? JSON.parse(saved) : STOCK_FLOWS;
+    
+    // Ensure "Today" is always the first flow
+    if (!flows.some(seq => seq.name === "Today")) {
+      flows.unshift({
+        name: "Today",
+        blocks: []
+      });
+    }
+    
+    return flows;
+  });
+
   const [blocks, setBlocks] = useState([]);
   const [currentBlockIndex, setCurrentBlockIndex] = useState(null);
-  const [currentSequenceName, setCurrentSequenceName] = useState('');
+  const [currentFlowName, setCurrentFlowName] = useState('');
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const [savedSequences, setSavedSequences] = useState(() => {
-    const saved = localStorage.getItem('savedSequences');
-    return saved ? JSON.parse(saved) : defaultSequences;
-  });
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [showLoadDialog, setShowLoadDialog] = useState(false);
   const [editingBlockId, setEditingBlockId] = useState(null);
   const [audio] = useState(new Audio(`${process.env.PUBLIC_URL}/messiaen.mp3`));
-  const [dynamicTimeAdjustments, setDynamicTimeAdjustments] = useState({});
+  const [dynamicTimeAdjustments, setDynamicTimeAdjustments] = useState({})
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [activeBlockId, setActiveBlockId] = useState(null);
   const [colorPickerPosition, setColorPickerPosition] = useState({ top: 0, left: 0 });
-  const [showNewSequenceDialog, setShowNewSequenceDialog] = useState(false);
-  const [newSequenceName, setNewSequenceName] = useState('');
+  const [showNewFlowDialog, setShowNewFlowDialog] = useState(false);
+  const [newFlowName, setNewFlowName] = useState('');
   const [currentMessage, setCurrentMessage] = useState('');
 
   const colors = [
@@ -105,12 +100,30 @@ function App() {
     '#C7694B'
   ];
 
+  const encouragementMessages = [
+    "Great job on that block! Now, let's tackle the next one with the same energy!",
+    "You nailed it! On to the next block—let's keep the momentum going!",
+    "Fantastic work! Let's take it to the next level in the next block!",
+    "One block down—amazing focus! Let's move to the next and keep growing!",
+    "That was awesome! Ready to power through the next block? You've got this!",
+    "You're doing great! Let's bring that same focus to the next block!",
+    "Bravo! You've got the rhythm—let's carry it into the next block!",
+    "You crushed it! Let's dive into the next block with the same dedication!",
+    "Great focus! Time to move forward and shine in the next block!",
+    "Amazing effort! Ready to conquer the next block? I believe in you!",
+    "Well done! Let's jump into the next block and make it even better!",
+    "Incredible work! Let's keep that flow going into the next block!",
+    "You're on fire! Keep that drive and head into the next block!",
+    "Excellent progress! Let's push on and make the next block count!",
+    "Block complete—fantastic! Keep the energy high as we move to the next!"
+  ];
+
   useEffect(() => {
-    if (savedSequences.length === 0) {
-      setSavedSequences(defaultSequences);
+    if (savedFlows.length === 0) {
+      setSavedFlows(STOCK_FLOWS);
     }
-    localStorage.setItem('savedSequences', JSON.stringify(savedSequences));
-  }, [savedSequences]);
+    localStorage.setItem('savedFlows', JSON.stringify(savedFlows));
+  }, [savedFlows]);
 
   useEffect(() => {
     if (blocks.length > 0 && timeRemaining === 0 && currentBlockIndex !== null) {
@@ -122,7 +135,7 @@ function App() {
     audio.load();
   }, [audio]);
 
-  const startSequence = () => {
+  const startFlow = () => {
     if (blocks.length > 0) {
       setIsRunning(true);
       if (currentBlockIndex === null) {
@@ -134,11 +147,11 @@ function App() {
     }
   };
 
-  const pauseSequence = () => {
+  const pauseFlow = () => {
     setIsRunning(false);
   };
 
-  const resetSequence = () => {
+  const resetFlow = () => {
     setIsRunning(false);
     setCurrentBlockIndex(blocks.length > 0 ? 0 : null);
     setTimeRemaining(blocks.length > 0 ? blocks[0].duration : 0);
@@ -245,55 +258,49 @@ function App() {
       setIsRunning(true);
     } else {
       // All blocks completed
-      resetSequence();
+      resetFlow();
     }
   };
 
-  const saveSequence = () => {
-    if (blocks.length === 0) {
-      alert("Please add at least one block before saving.");
-      return;
-    }
+  const saveFlow = () => {
+    // Remove the check for empty blocks
+    const newFlow = { 
+      name: currentFlowName || "Untitled Flow", // Provide a default name if none is set
+      blocks: blocks.map(block => ({
+        name: block.name,
+        color: block.color,
+        duration: block.duration + (dynamicTimeAdjustments[block.id] || 0)
+      }))
+    };
 
-    if (!currentSequenceName) {
-      setShowSaveDialog(true);
-    } else {
-      const newSequence = { 
-        name: currentSequenceName, 
-        blocks: blocks.map(block => ({
-          name: block.name,
-          color: block.color,
-          duration: block.duration + (dynamicTimeAdjustments[block.id] || 0)
-        }))
-      };
-      setSavedSequences(prevSequences => {
-        const updatedSequences = prevSequences.map(seq => 
-          seq.name === currentSequenceName ? newSequence : seq
-        );
-        if (!prevSequences.some(seq => seq.name === currentSequenceName)) {
-          updatedSequences.push(newSequence);
-        }
-        localStorage.setItem('savedSequences', JSON.stringify(updatedSequences));
-        return updatedSequences;
-      });
-      setDynamicTimeAdjustments({});
-      alert("Sequence saved successfully!");
-    }
+    setSavedFlows(prevFlows => {
+      const updatedFlows = prevFlows.map(seq => 
+        seq.name === newFlow.name ? newFlow : seq
+      );
+      if (!prevFlows.some(seq => seq.name === newFlow.name)) {
+        updatedFlows.push(newFlow);
+      }
+      localStorage.setItem('savedFlows', JSON.stringify(updatedFlows));
+      return updatedFlows;
+    });
+
+    setDynamicTimeAdjustments({});
+    alert("Flow saved successfully!");
   };
 
-  const loadSequence = () => {
+  const loadFlow = () => {
     setShowLoadDialog(true);
   };
 
-  const handleLoadSequence = (sequence) => {
-    setBlocks(sequence.blocks.map(block => ({
+  const handleLoadFlow = (flow) => {
+    setBlocks(flow.blocks.map(block => ({
       ...block,
       id: Date.now() + Math.random(), // Ensure unique IDs
       isEditing: false
     })));
-    setCurrentSequenceName(sequence.name);
-    setCurrentBlockIndex(0);
-    setTimeRemaining(sequence.blocks[0].duration);
+    setCurrentFlowName(flow.name);
+    setCurrentBlockIndex(flow.blocks.length > 0 ? 0 : null);
+    setTimeRemaining(flow.blocks.length > 0 ? flow.blocks[0].duration : 0);
     setIsRunning(false);
     setShowLoadDialog(false);
     setDynamicTimeAdjustments({});
@@ -357,11 +364,15 @@ function App() {
     };
   }, [blocks]);
 
-  const deleteSequence = (name) => {
-    setSavedSequences(prevSequences => {
-      const updatedSequences = prevSequences.filter(seq => seq.name !== name);
-      return updatedSequences.length > 0 ? updatedSequences : defaultSequences;
-    });
+  const deleteFlow = (name) => {
+    if (name === "Today") {
+      alert("The 'Today' routine cannot be deleted.");
+      return;
+    }
+    
+    const updatedFlows = savedFlows.filter(seq => seq.name !== name);
+    setSavedFlows(updatedFlows);
+    localStorage.setItem('savedFlows', JSON.stringify(updatedFlows));
   };
 
   useEffect(() => {
@@ -401,77 +412,109 @@ function App() {
     return '#' + color.replace(/^#/, '').replace(/../g, color => ('0'+Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)).substr(-2));
   }
 
-  const renderSavedSequences = () => {
-    return savedSequences.map((sequence, index) => (
-      <div key={index} className={`sequence-item ${defaultSequences.some(seq => seq.name === sequence.name) ? 'default-sequence' : ''}`}>
-        <h4>{sequence.name}</h4>
-        <div className="mini-blocks-container">
-          {sequence.blocks.map((block, blockIndex) => (
-            <div
-              key={blockIndex}
-              className="mini-block"
-              style={{ 
-                background: block.color,
-                padding: '4px 8px',
-                borderRadius: '4px',
-                display: 'inline-block',
-                margin: '2px',
-                maxWidth: '100px',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap'
-              }}
-            >
-              <span style={{ color: 'white', fontSize: '12px' }}>
-                {block.name}
-              </span>
+  const renderSidebar = () => {
+    return (
+      <div className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
+        <div className="sidebar-content">
+          <div className="flow-list">
+            {savedFlows.map((flow, index) => (
+              flow.name === "Today" && (
+                <div key={index} className="flow-item today-routine">
+                  <h4>{flow.name}</h4>
+                  <div className="mini-blocks-container">
+                    {flow.blocks.length > 0 ? (
+                      flow.blocks.map((block, blockIndex) => (
+                        <div
+                          key={blockIndex}
+                          className="mini-block"
+                          style={{ backgroundColor: block.color }}
+                        >
+                          <span>{block.name}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="no-blocks-message">No blocks in this flow</p>
+                    )}
+                  </div>
+                  <div className="flow-item-buttons">
+                    <button onClick={() => handleLoadFlow(flow)}>Load</button>
+                  </div>
+                </div>
+              )
+            ))}
+            <div className="routines-header-container">
+              <h3 className="routines-header">ROUTINES</h3>
+              <button className="add-routine-button" onClick={() => setShowNewFlowDialog(true)}>
+                <FaPlus />
+              </button>
             </div>
-          ))}
-        </div>
-        <div className="sequence-item-buttons">
-          <button onClick={() => handleLoadSequence(sequence)}>Load</button>
-          <button onClick={() => deleteSequence(sequence.name)} className="delete-sequence-button">×</button>
+            {savedFlows.map((flow, index) => (
+              flow.name !== "Today" && (
+                <div key={index} className="flow-item">
+                  <h4>{flow.name}</h4>
+                  <div className="mini-blocks-container">
+                    {flow.blocks.length > 0 ? (
+                      flow.blocks.map((block, blockIndex) => (
+                        <div
+                          key={blockIndex}
+                          className="mini-block"
+                          style={{ backgroundColor: block.color }}
+                        >
+                          <span>{block.name}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="no-blocks-message">No blocks in this flow</p>
+                    )}
+                  </div>
+                  <div className="flow-item-buttons">
+                    <button onClick={() => handleLoadFlow(flow)}>Load</button>
+                    <button onClick={() => deleteFlow(flow.name)}>Delete</button>
+                  </div>
+                </div>
+              )
+            ))}
+          </div>
         </div>
       </div>
-    ));
+    );
   };
 
-  useEffect(() => {
-    if (savedSequences.length > 0 && blocks.length === 0) {
-      const firstSequence = savedSequences[0];
-      setBlocks(firstSequence.blocks.map(block => ({
-        ...block,
-        id: Date.now() + Math.random(), // Ensure unique IDs
-        isEditing: false
-      })));
-      setCurrentSequenceName(firstSequence.name);
-      setCurrentBlockIndex(0);
-      setTimeRemaining(firstSequence.blocks[0].duration);
-    }
-  }, [savedSequences]);
-
-  const createNewSequence = () => {
+  const createNewFlow = () => {
     if (blocks.length > 0) {
-      const confirmSave = window.confirm("Do you want to save the current sequence?");
+      const confirmSave = window.confirm("Do you want to save the current flow?");
       if (confirmSave) {
-        saveSequence();
+        saveFlow();
       }
     }
-    setShowNewSequenceDialog(true);
+    setShowNewFlowDialog(true);
   };
 
-  const handleNewSequence = () => {
-    if (newSequenceName.trim()) {
-      setCurrentSequenceName(newSequenceName);
+  const handleNewFlow = () => {
+    if (newFlowName.trim()) {
+      setCurrentFlowName(newFlowName);
       setBlocks([]);
       setCurrentBlockIndex(null);
       setTimeRemaining(0);
-      setShowNewSequenceDialog(false);
-      setNewSequenceName('');
+      setShowNewFlowDialog(false);
+      setNewFlowName('');
     } else {
-      alert("Please enter a name for your new sequence.");
+      alert("Please enter a name for your new flow.");
     }
   };
+
+  // Add this effect to ensure stock flows are always present
+  useEffect(() => {
+    setSavedFlows(currentFlows => {
+      const updatedFlows = [...currentFlows];
+      STOCK_FLOWS.forEach(stockFlow => {
+        if (!updatedFlows.some(flow => flow.id === stockFlow.id)) {
+          updatedFlows.push(stockFlow);
+        }
+      });
+      return updatedFlows;
+    });
+  }, []);
 
   return (
     <div className={`App-container ${isSidebarOpen ? 'sidebar-open' : ''}`}>
@@ -480,43 +523,37 @@ function App() {
           <h1>FocusFlow</h1>
         </header>
         
-        <div className="sequence-header">
+        <div className="flow-header">
           <button onClick={toggleSidebar} className="sidebar-toggle">
             {isSidebarOpen ? <FaChevronLeft /> : <FaBars />}
           </button>
-          <h2>{currentSequenceName || 'Untitled Sequence'}</h2>
-          <div className="sequence-actions">
-            <button onClick={saveSequence} className="icon-button" aria-label="Save Sequence">
+          <h2>{currentFlowName || 'Untitled Flow'}</h2>
+          <div className="flow-actions">
+            <button onClick={saveFlow} className="icon-button" aria-label="Save Flow">
               <FaSave />
             </button>
-            <button onClick={createNewSequence} className="icon-button" aria-label="New Sequence">
+            <button onClick={createNewFlow} className="icon-button" aria-label="Create New Flow">
               <FaPlus />
             </button>
           </div>
         </div>
         
-        {/* Sidebar */}
-        <div className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
-          <h3>Saved Sequences</h3>
-          <div className="sequence-list">
-            {renderSavedSequences()}
-          </div>
-        </div>
+        {renderSidebar()}
 
         {/* Main content */}
         <div className="main-content">
           <div className="control-panel">
-            <button onClick={startSequence} className="icon-button start-button" aria-label="Start Sequence">
+            <button onClick={startFlow} className="icon-button start-button" aria-label="Start Flow">
               <FaPlay />
             </button>
-            <button onClick={pauseSequence} className="icon-button pause-button" aria-label="Pause Sequence">
+            <button onClick={pauseFlow} className="icon-button pause-button" aria-label="Pause Flow">
               <FaPause />
             </button>
-            <button onClick={resetSequence} className="icon-button reset-button" aria-label="Reset Sequence">
+            <button onClick={resetFlow} className="icon-button reset-button" aria-label="Reset Flow">
               <FaUndo />
             </button>
           </div>
-          <div className="timer-sequence">
+          <div className="timer-flow">
             {blocks.map((block, index) => (
               <TimerBlock
                 key={block.id}
@@ -550,20 +587,20 @@ function App() {
           {showSaveDialog && (
             <div className="save-dialog-overlay">
               <div className="save-dialog">
-                <h2>Save Sequence</h2>
+                <h2>Save Flow</h2>
                 <input
                   type="text"
-                  value={currentSequenceName}
-                  onChange={(e) => setCurrentSequenceName(e.target.value)}
-                  placeholder="Enter sequence name"
+                  value={currentFlowName}
+                  onChange={(e) => setCurrentFlowName(e.target.value)}
+                  placeholder="Enter flow name"
                 />
                 <div className="save-dialog-buttons">
                   <button onClick={() => {
-                    if (currentSequenceName) {
-                      saveSequence();
+                    if (currentFlowName) {
+                      saveFlow();
                       setShowSaveDialog(false);
                     } else {
-                      alert("Please enter a name for your sequence.");
+                      alert("Please enter a name for your flow.");
                     }
                   }}>Save</button>
                   <button onClick={() => setShowSaveDialog(false)}>Cancel</button>
@@ -573,20 +610,20 @@ function App() {
           )}
           {showLoadDialog && (
             <div className="load-dialog">
-              <h2>Saved Sequences</h2>
-              <div className="sequence-list">
-                {savedSequences.map((sequence, index) => (
-                  <div key={index} className="sequence-item">
-                    <h3>{sequence.name}</h3>
+              <h2>Saved Flows</h2>
+              <div className="flow-list">
+                {savedFlows.map((flow, index) => (
+                  <div key={index} className="flow-item">
+                    <h3>{flow.name}</h3>
                     <div className="mini-blocks">
-                      {sequence.blocks.map((block, blockIndex) => (
+                      {flow.blocks.map((block, blockIndex) => (
                         <div key={blockIndex} className="mini-block" style={{backgroundColor: block.color}}>
                           {block.name}
                         </div>
                       ))}
                     </div>
-                    <button className="load-button" onClick={() => handleLoadSequence(sequence)}>Load</button>
-                    <button className="delete-sequence-button" onClick={() => deleteSequence(sequence.name)}>×</button>
+                    <button className="load-button" onClick={() => handleLoadFlow(flow)}>Load</button>
+                    <button className="delete-flow-button" onClick={() => deleteFlow(flow.name)}>×</button>
                   </div>
                 ))}
               </div>
@@ -614,19 +651,19 @@ function App() {
           </linearGradient>
         </defs>
       </svg>
-      {showNewSequenceDialog && (
+      {showNewFlowDialog && (
         <div className="save-dialog-overlay">
           <div className="save-dialog">
-            <h2>Create New Sequence</h2>
+            <h2>Create New Flow</h2>
             <input
               type="text"
-              value={newSequenceName}
-              onChange={(e) => setNewSequenceName(e.target.value)}
-              placeholder="Enter sequence name"
+              value={newFlowName}
+              onChange={(e) => setNewFlowName(e.target.value)}
+              placeholder="Enter flow name"
             />
             <div className="save-dialog-buttons">
-              <button onClick={handleNewSequence}>Create</button>
-              <button onClick={() => setShowNewSequenceDialog(false)}>Cancel</button>
+              <button onClick={handleNewFlow}>Create</button>
+              <button onClick={() => setShowNewFlowDialog(false)}>Cancel</button>
             </div>
           </div>
         </div>
