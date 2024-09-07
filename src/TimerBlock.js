@@ -100,11 +100,13 @@ const TimerBlock = memo(({
         <>
           <span className="block-name">{block.name}</span>
           <div className="block-controls">
-            <div className="time-adjust-controls">
-              <button className="time-adjust-button" onClick={(e) => { e.stopPropagation(); handleTimeAdjustment(60); }}>+1m</button>
-              <button className="time-adjust-button" onClick={(e) => { e.stopPropagation(); handleTimeAdjustment(300); }}>+5m</button>
-              <button className="time-adjust-button" onClick={(e) => { e.stopPropagation(); handleTimeAdjustment(600); }}>+10m</button>
-            </div>
+            {isActive && (
+              <div className="time-adjust-controls">
+                <button className="time-adjust-button" onClick={(e) => { e.stopPropagation(); handleTimeAdjustment(60); }}>+1m</button>
+                <button className="time-adjust-button" onClick={(e) => { e.stopPropagation(); handleTimeAdjustment(300); }}>+5m</button>
+                <button className="time-adjust-button" onClick={(e) => { e.stopPropagation(); handleTimeAdjustment(600); }}>+10m</button>
+              </div>
+            )}
             <span className="block-time">{displayTime}</span>
             <button onClick={(e) => { e.stopPropagation(); onEditBlock(block.id, 'isEditing', true); }} className="edit-button">✎</button>
             <button onClick={(e) => { e.stopPropagation(); onDeleteBlock(block.id); }} className="delete-button">✖</button>
