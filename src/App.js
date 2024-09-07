@@ -57,6 +57,8 @@ function App() {
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [activeBlockId, setActiveBlockId] = useState(null);
   const [colorPickerPosition, setColorPickerPosition] = useState({ top: 0, left: 0 });
+  const [showNewSequenceDialog, setShowNewSequenceDialog] = useState(false);
+  const [newSequenceName, setNewSequenceName] = useState('');
 
   const colors = [
     '#4CAF50', '#2196F3', '#FFC107', '#E91E63', '#9C27B0',
@@ -425,6 +427,29 @@ function App() {
     }
   }, [savedSequences]);
 
+  const createNewSequence = () => {
+    if (blocks.length > 0) {
+      const confirmSave = window.confirm("Do you want to save the current sequence?");
+      if (confirmSave) {
+        saveSequence();
+      }
+    }
+    setShowNewSequenceDialog(true);
+  };
+
+  const handleNewSequence = () => {
+    if (newSequenceName.trim()) {
+      setCurrentSequenceName(newSequenceName);
+      setBlocks([]);
+      setCurrentBlockIndex(null);
+      setTimeRemaining(0);
+      setShowNewSequenceDialog(false);
+      setNewSequenceName('');
+    } else {
+      alert("Please enter a name for your new sequence.");
+    }
+  };
+
   return (
     <div className={`App-container ${isSidebarOpen ? 'sidebar-open' : ''}`}>
       <div className="App">
@@ -440,6 +465,9 @@ function App() {
           <div className="sequence-actions">
             <button onClick={saveSequence} className="icon-button" aria-label="Save Sequence">
               <FaSave />
+            </button>
+            <button onClick={createNewSequence} className="icon-button" aria-label="New Sequence">
+              <FaPlus />
             </button>
           </div>
         </div>
@@ -563,6 +591,23 @@ function App() {
           </linearGradient>
         </defs>
       </svg>
+      {showNewSequenceDialog && (
+        <div className="save-dialog-overlay">
+          <div className="save-dialog">
+            <h2>Create New Sequence</h2>
+            <input
+              type="text"
+              value={newSequenceName}
+              onChange={(e) => setNewSequenceName(e.target.value)}
+              placeholder="Enter sequence name"
+            />
+            <div className="save-dialog-buttons">
+              <button onClick={handleNewSequence}>Create</button>
+              <button onClick={() => setShowNewSequenceDialog(false)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
