@@ -40,6 +40,7 @@ const defaultSequences = [
 function App() {
   const [blocks, setBlocks] = useState([]);
   const [currentBlockIndex, setCurrentBlockIndex] = useState(null);
+  const [currentSequenceName, setCurrentSequenceName] = useState('');
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -48,10 +49,7 @@ function App() {
     return saved ? JSON.parse(saved) : defaultSequences;
   });
   const [showSaveDialog, setShowSaveDialog] = useState(false);
-  const [currentSequenceName, setCurrentSequenceName] = useState('');
   const [showLoadDialog, setShowLoadDialog] = useState(false);
-  const [showNewSequenceDialog, setShowNewSequenceDialog] = useState(false);
-  const [newSequenceName, setNewSequenceName] = useState('');
   const [editingBlockId, setEditingBlockId] = useState(null);
   const [audio] = useState(new Audio(`${process.env.PUBLIC_URL}/messiaen.mp3`));
   const [dynamicTimeAdjustments, setDynamicTimeAdjustments] = useState({});
@@ -280,29 +278,6 @@ function App() {
     setDynamicTimeAdjustments({});
   };
 
-  const createNewSequence = () => {
-    if (blocks.length > 0) {
-      const confirmSave = window.confirm("Do you want to save the current sequence?");
-      if (confirmSave) {
-        saveSequence();
-      }
-    }
-    setShowNewSequenceDialog(true);
-  };
-
-  const handleNewSequence = () => {
-    if (newSequenceName.trim()) {
-      setCurrentSequenceName(newSequenceName);
-      setBlocks([]);
-      setCurrentBlockIndex(null);
-      setTimeRemaining(0);
-      setShowNewSequenceDialog(false);
-      setNewSequenceName('');
-    } else {
-      alert("Please enter a name for your new sequence.");
-    }
-  };
-
   // Modify the main timer useEffect
   useEffect(() => {
     let intervalId;
@@ -436,6 +411,20 @@ function App() {
     ));
   };
 
+  useEffect(() => {
+    if (savedSequences.length > 0 && blocks.length === 0) {
+      const firstSequence = savedSequences[0];
+      setBlocks(firstSequence.blocks.map(block => ({
+        ...block,
+        id: Date.now() + Math.random(), // Ensure unique IDs
+        isEditing: false
+      })));
+      setCurrentSequenceName(firstSequence.name);
+      setCurrentBlockIndex(0);
+      setTimeRemaining(firstSequence.blocks[0].duration);
+    }
+  }, [savedSequences]);
+
   return (
     <div className={`App-container ${isSidebarOpen ? 'sidebar-open' : ''}`}>
       <div className="App">
@@ -451,9 +440,6 @@ function App() {
           <div className="sequence-actions">
             <button onClick={saveSequence} className="icon-button" aria-label="Save Sequence">
               <FaSave />
-            </button>
-            <button onClick={createNewSequence} className="icon-button" aria-label="New Sequence">
-              <FaPlus />
             </button>
           </div>
         </div>
@@ -554,36 +540,6 @@ function App() {
                 ))}
               </div>
               <button onClick={() => setShowLoadDialog(false)}>Close</button>
-            </div>
-          )}
-          {showNewSequenceDialog && (
-            <div className="popup-overlay">
-              <div className="popup-content">
-                <h2>Create New Sequence</h2>
-                <input
-                  type="text"
-                  value={newSequenceName}
-                  onChange={(e) => setNewSequenceName(e.target.value)}
-                  placeholder="Enter sequence name"
-                />
-                <div className="popup-buttons">
-                  <button 
-                    className="popup-button popup-button-primary" 
-                    onClick={handleNewSequence}
-                  >
-                    Create
-                  </button>
-                  <button 
-                    className="popup-button popup-button-secondary" 
-                    onClick={() => {
-                      setShowNewSequenceDialog(false);
-                      setNewSequenceName('');
-                    }}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
             </div>
           )}
         </div>
