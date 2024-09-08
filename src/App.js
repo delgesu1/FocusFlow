@@ -568,12 +568,33 @@ function App() {
     }
   }, [showSaveSuccess]);
 
-  // Add this effect to handle the timer
+  const handleBlockCompletion = useCallback(() => {
+    setIsRunning(false);
+    if (currentBlockIndex < blocks.length - 1) {
+      const randomMessage = encouragementMessages[Math.floor(Math.random() * encouragementMessages.length)];
+      setEncouragementMessage(randomMessage);
+      setShowEncouragement(true);
+      // Move to the next block after a short delay
+      setTimeout(() => {
+        setCurrentBlockIndex(prevIndex => prevIndex + 1);
+        setTimeRemaining(blocks[currentBlockIndex + 1].duration);
+        setShowEncouragement(false);
+        setIsRunning(true);
+      }, 3000);
+    } else {
+      // Flow completed
+      setCurrentBlockIndex(null);
+      // Show completion message
+      setEncouragementMessage("Congratulations! You've completed the flow!");
+      setShowEncouragement(true);
+    }
+  }, [currentBlockIndex, blocks, encouragementMessages]);
+
   useEffect(() => {
     let timer;
-    if (isRunning && timeRemaining > 0 && !isTransitioning) {
+    if (isRunning && timeRemaining > 0) {
       timer = setInterval(() => {
-        setTimeRemaining((prevTime) => {
+        setTimeRemaining(prevTime => {
           if (prevTime <= 1) {
             clearInterval(timer);
             handleBlockCompletion();
@@ -582,35 +603,14 @@ function App() {
           return prevTime - 1;
         });
       }, 1000);
+    } else if (isRunning && timeRemaining === 0) {
+      handleBlockCompletion();
     }
-
     return () => clearInterval(timer);
-  }, [isRunning, timeRemaining, currentBlockIndex, blocks, isTransitioning]);
-
-  const handleBlockCompletion = () => {
-    setIsTransitioning(true);
-    setIsRunning(false);
-    setTimeRemaining(0); // Ensure the timer is set to 0
-    audio.play();
-    const randomMessage = encouragementMessages[Math.floor(Math.random() * encouragementMessages.length)];
-    setEncouragementMessage(randomMessage);
-    setShowEncouragement(true);
-  };
+  }, [isRunning, timeRemaining, handleBlockCompletion]);
 
   const handleCloseEncouragement = () => {
     setShowEncouragement(false);
-    
-    // Move to the next block after the popup closes
-    if (currentBlockIndex < blocks.length - 1) {
-      const nextIndex = currentBlockIndex + 1;
-      setCurrentBlockIndex(nextIndex);
-      setTimeRemaining(blocks[nextIndex].duration);
-      setIsRunning(true); // Automatically start the next timer
-    } else {
-      setCurrentBlockIndex(null);
-    }
-    
-    setIsTransitioning(false);
   };
 
   return (

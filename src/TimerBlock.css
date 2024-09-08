@@ -88,14 +88,6 @@
   height: 100%;
 }
 
-.play-button.paused span::before {
-  content: '\25B6'; /* Unicode for play triangle */
-}
-
-.play-button.active span::before {
-  content: '\25A0'; /* Unicode for stop square */
-}
-
 .play-button:hover {
   transform: scale(1.1);
 }
