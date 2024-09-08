@@ -131,6 +131,7 @@ function App() {
   const [encouragementMessage, setEncouragementMessage] = useState('');
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [colorPickerAnchor, setColorPickerAnchor] = useState(null);
+  const [nextBlockIndex, setNextBlockIndex] = useState(null);
 
   const colors = [
     '#4CAF50', '#2196F3', '#FFC107', '#E91E63', '#9C27B0',
@@ -570,29 +571,35 @@ function App() {
 
   const handleBlockCompletion = useCallback(() => {
     setIsRunning(false);
+    setIsTransitioning(true);
+
     if (currentBlockIndex < blocks.length - 1) {
       const randomMessage = encouragementMessages[Math.floor(Math.random() * encouragementMessages.length)];
       setEncouragementMessage(randomMessage);
       setShowEncouragement(true);
-      // Move to the next block after a short delay
-      setTimeout(() => {
-        setCurrentBlockIndex(prevIndex => prevIndex + 1);
-        setTimeRemaining(blocks[currentBlockIndex + 1].duration);
-        setShowEncouragement(false);
-        setIsRunning(true);
-      }, 3000);
+      setNextBlockIndex(currentBlockIndex + 1);
     } else {
       // Flow completed
-      setCurrentBlockIndex(null);
-      // Show completion message
       setEncouragementMessage("Congratulations! You've completed the flow!");
       setShowEncouragement(true);
+      setNextBlockIndex(null);
     }
-  }, [currentBlockIndex, blocks, encouragementMessages]);
+  }, [currentBlockIndex, blocks.length, encouragementMessages]);
+
+  const handleEncouragementClose = useCallback(() => {
+    setShowEncouragement(false);
+    if (nextBlockIndex !== null) {
+      setCurrentBlockIndex(nextBlockIndex);
+      setTimeRemaining(blocks[nextBlockIndex].duration);
+      setIsRunning(true);
+    }
+    setNextBlockIndex(null);
+    setIsTransitioning(false);
+  }, [nextBlockIndex, blocks]);
 
   useEffect(() => {
     let timer;
-    if (isRunning && timeRemaining > 0) {
+    if (isRunning && timeRemaining > 0 && !isTransitioning) {
       timer = setInterval(() => {
         setTimeRemaining(prevTime => {
           if (prevTime <= 1) {
@@ -603,11 +610,9 @@ function App() {
           return prevTime - 1;
         });
       }, 1000);
-    } else if (isRunning && timeRemaining === 0) {
-      handleBlockCompletion();
     }
     return () => clearInterval(timer);
-  }, [isRunning, timeRemaining, handleBlockCompletion]);
+  }, [isRunning, timeRemaining, handleBlockCompletion, isTransitioning]);
 
   const handleCloseEncouragement = () => {
     setShowEncouragement(false);
@@ -783,7 +788,7 @@ function App() {
       {showEncouragement && (
         <EncouragementPopup
           message={encouragementMessage}
-          onClose={handleCloseEncouragement}
+          onClose={handleEncouragementClose}
         />
       )}
     </div>
