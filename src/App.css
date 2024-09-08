@@ -489,6 +489,7 @@ button:hover {
   gap: 15px;
   position: relative;
   padding: 20px;
+  padding-left: 25px; /* Adjust this to allow the flow indicator to overlap */
 }
 
 .timer-bar {
@@ -502,6 +503,9 @@ button:hover {
   font-size: 16px;
   transition: all 0.3s ease;
   min-height: 80px; /* Reduced from 100px to 80px */
+  position: relative; /* Ensure the timer bars are above the flow indicator */
+  z-index: 1;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add a subtle shadow to lift the blocks above the flow indicator */
 }
 
 .block-content {
@@ -541,7 +545,25 @@ button:hover {
 .block-controls {
   display: flex;
   align-items: center;
-  gap: 8px; /* Reduced from 10px to 8px */
+  justify-content: flex-end;
+  gap: 15px;
+}
+
+.block-time {
+  margin-right: auto; /* This pushes the timer to the left */
+  margin-left: 50px; /* This adds 50px of space to the left of the timer */
+}
+
+.block-action-buttons {
+  display: flex;
+  gap: 8px;
+  margin-left: 50px; /* This adds 50px of space between the timer and the icons */
+}
+
+.edit-button, .delete-button {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
 }
 
 .time-adjust-controls {
@@ -1181,4 +1203,91 @@ button:hover {
   font-style: italic;
   color: #888;
   font-size: 0.9em;
+}
+
+.block-time {
+  margin-left: 15px; /* Adjust this value as needed */
+}
+
+.timer-controls {
+  position: relative;
+}
+
+.save-button-container {
+  position: relative;
+  display: inline-block;
+}
+
+.save-success-icon {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #4CAF50;
+  color: white;
+  padding: 5px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  opacity: 0;
+  animation: fadeInOut 2s ease-in-out;
+  z-index: 10;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; }
+  15%, 85% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.timer-bar {
+  position: relative;
+  z-index: 1;
+}
+
+.timer-bar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.timer-bar.glowing::before {
+  animation: glow 2s ease-in-out infinite;
+}
+
+@keyframes glow {
+  0% {
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.5),
+                0 0 10px rgba(255, 255, 255, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.7),
+                0 0 20px rgba(255, 255, 255, 0.7);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.5),
+                0 0 10px rgba(255, 255, 255, 0.5);
+  }
+}
+
+.timer-flow {
+  position: relative;
+  z-index: 1;
+}
+
+.timer-bar {
+  position: relative;
+  z-index: 2;
+}
+
+.timer-bar.glowing {
+  z-index: 3;
 }

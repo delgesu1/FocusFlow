@@ -2,62 +2,114 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './App.css';
 import TimerBlock from './TimerBlock';
 import TimeInput from './TimeInput';
-import { FaPlay, FaPause, FaUndo, FaSave, FaPlus, FaBars, FaChevronLeft } from 'react-icons/fa';
+import { FaPlay, FaPause, FaUndo, FaSave, FaPlus, FaBars, FaChevronLeft, FaCheck } from 'react-icons/fa';
 import ColorPicker from './ColorPicker';
-
-// Add this function at the top of your file, outside the App component
-function getRandomColor(colors) {
-  return colors[Math.floor(Math.random() * colors.length)];
-}
+import FlowIndicator from './FlowIndicator';
+import EncouragementPopup from './EncouragementPopup';
 
 const STOCK_FLOWS = [
   {
-    id: "technique-routine",
-    name: "Technique Routine",
+    id: "comprehensive-technique",
+    name: "Comprehensive Technique Routine",
     blocks: [
-      { id: "scales-acceleration", name: "Scales: Acceleration", duration: 1200, color: "#5271C4" },
-      { id: "scales-bowings", name: "Scales: Bowings", duration: 1200, color: "#4A97B8" },
-      { id: "vamos-exercise", name: "Vamos exercise", duration: 600, color: "#45A177" },
-      { id: "break-1", name: "Break", duration: 900, color: "#5C9D8F" },
-      { id: "scales-3rds-6ths", name: "Scales: 3rds and 6ths", duration: 1200, color: "#6EA35C" },
-      { id: "dounis-trills", name: "Dounis Trills", duration: 600, color: "#93A545" },
-      { id: "shifting-exercise", name: "Shifting Exercise", duration: 300, color: "#B8A53E" }
+      { id: "warm-up", name: "Warm-up & Stretching", duration: 300, color: "#5271C4" },
+      { id: "scales-major", name: "Scales: Major & Arpeggios", duration: 600, color: "#4A97B8" },
+      { id: "scales-minor", name: "Scales: Minor & Arpeggios", duration: 600, color: "#4A97B8" },
+      { id: "etude-kreutzer", name: "Etude: Kreutzer No. 2", duration: 900, color: "#45A177" },
+      { id: "break-1", name: "Short Break", duration: 300, color: "#C7694B" },
+      { id: "double-stops", name: "Double Stops Practice", duration: 600, color: "#6EA35C" },
+      { id: "shifting-exercise", name: "Shifting Exercises", duration: 600, color: "#93A545" },
+      { id: "vibrato-practice", name: "Vibrato Technique", duration: 450, color: "#B8A53E" },
+      { id: "bow-control", name: "Bow Control & Articulation", duration: 600, color: "#D27F55" },
+      { id: "break-2", name: "Reflection Break", duration: 300, color: "#C7694B" },
+      { id: "sight-reading", name: "Sight-Reading Practice", duration: 600, color: "#D76663" },
+      { id: "cool-down", name: "Cool-down & Stretching", duration: 300, color: "#5271C4" }
     ]
   },
   {
-    id: "repertoire",
-    name: "Repertoire",
+    id: "performance-preparation",
+    name: "Performance Preparation Routine",
     blocks: [
-      { id: "debussy-3rd-mvt", name: "Debussy Sonata 3rd Mvt passages", duration: 2400, color: "#D27F55" },
-      { id: "debussy-2nd-mvt", name: "Debussy Sonata 2nd Mvt passages", duration: 1800, color: "#D76663" },
-      { id: "debussy-1st-mvt", name: "Debussy Sonata 1st Mvt passages", duration: 1800, color: "#B2568E" },
-      { id: "franck-passages", name: "Franck passages", duration: 1800, color: "#8A6FB3" },
-      { id: "break-2", name: "Break", duration: 900, color: "#7387C2" },
-      { id: "mock-performance-debussy", name: "Mock Performance Debussy 2x", duration: 1800, color: "#5967A1" },
-      { id: "mock-performance-franck", name: "Mock Performance Franck", duration: 1800, color: "#4A8475" }
+      { id: "mental-prep", name: "Mental Preparation", duration: 300, color: "#8A6FB3" },
+      { id: "warm-up-scales", name: "Warm-up with Scales", duration: 600, color: "#4A97B8" },
+      { id: "concerto-exposition", name: "Concerto: Exposition", duration: 900, color: "#5967A1" },
+      { id: "concerto-development", name: "Concerto: Development", duration: 900, color: "#5967A1" },
+      { id: "break-1", name: "Mindful Break", duration: 300, color: "#C7694B" },
+      { id: "concerto-recapitulation", name: "Concerto: Recapitulation", duration: 900, color: "#5967A1" },
+      { id: "technical-passages", name: "Technical Passages Focus", duration: 600, color: "#45A177" },
+      { id: "break-2", name: "Performance Visualization", duration: 300, color: "#C7694B" },
+      { id: "sonata-movement1", name: "Sonata: 1st Movement", duration: 720, color: "#6EA35C" },
+      { id: "sonata-movement2", name: "Sonata: 2nd Movement", duration: 600, color: "#6EA35C" },
+      { id: "mock-performance", name: "Mock Performance Run", duration: 1200, color: "#D76663" },
+      { id: "cool-down-reflection", name: "Cool-down & Reflection", duration: 300, color: "#5271C4" }
+    ]
+  },
+  {
+    id: "chamber-music-intensive",
+    name: "Chamber Music Intensive",
+    blocks: [
+      { id: "individual-warm-up", name: "Individual Warm-up", duration: 600, color: "#5271C4" },
+      { id: "intonation-exercises", name: "Intonation Exercises", duration: 450, color: "#4A97B8" },
+      { id: "rhythm-precision", name: "Rhythm & Ensemble Precision", duration: 600, color: "#45A177" },
+      { id: "quartet-1st-mvt", name: "Quartet: 1st Movement Work", duration: 1200, color: "#5967A1" },
+      { id: "break-1", name: "Active Listening Break", duration: 300, color: "#C7694B" },
+      { id: "balance-blend", name: "Balance & Blend Practice", duration: 600, color: "#6EA35C" },
+      { id: "quartet-2nd-mvt", name: "Quartet: 2nd Movement Work", duration: 900, color: "#5967A1" },
+      { id: "individual-part-focus", name: "Individual Part Focus", duration: 600, color: "#93A545" },
+      { id: "break-2", name: "Score Study", duration: 300, color: "#C7694B" },
+      { id: "quartet-3rd-mvt", name: "Quartet: 3rd Movement Work", duration: 900, color: "#5967A1" },
+      { id: "ensemble-communication", name: "Non-Verbal Communication", duration: 450, color: "#B8A53E" },
+      { id: "full-run-through", name: "Full Piece Run-Through", duration: 1500, color: "#D76663" },
+      { id: "cool-down-reflection", name: "Cool-down & Group Reflection", duration: 300, color: "#5271C4" }
     ]
   }
 ];
 
+// Your existing color palette
+const colorPalette = [
+  '#5271C4',
+  '#4A97B8',
+  '#45A177',
+  '#5C9D8F',
+  '#6EA35C',
+  '#93A545',
+  '#B8A53E',
+  '#D27F55',
+  '#D76663',
+  '#B2568E',
+  '#8A6FB3',
+  '#7387C2',
+  '#5967A1',
+  '#4A8475',
+  '#C7694B'
+];
+
 function App() {
   const [savedFlows, setSavedFlows] = useState(() => {
-    const saved = localStorage.getItem('savedFlows');
-    let flows = saved ? JSON.parse(saved) : STOCK_FLOWS;
-    
-    // Ensure "Today" is always the first flow
-    if (!flows.some(seq => seq.name === "Today")) {
-      flows.unshift({
-        name: "Today",
-        blocks: []
-      });
+    try {
+      const saved = localStorage.getItem('savedFlows');
+      let flows = saved ? JSON.parse(saved) : STOCK_FLOWS;
+      
+      // Ensure "Today" is always the first flow
+      if (!flows.some(flow => flow.id === "today")) {
+        flows.unshift({ id: "today", name: "Today", blocks: [] });
+      }
+      
+      return flows;
+    } catch (error) {
+      console.error('Error loading saved flows:', error);
+      return [...STOCK_FLOWS, { id: "today", name: "Today", blocks: [] }];
     }
-    
-    return flows;
   });
 
-  const [blocks, setBlocks] = useState([]);
+  const [blocks, setBlocks] = useState(() => {
+    // Find the "Comprehensive Technique Routine" flow
+    const techniqueRoutine = STOCK_FLOWS.find(flow => flow.name === "Comprehensive Technique Routine");
+    return techniqueRoutine ? techniqueRoutine.blocks : [];
+  });
+
   const [currentBlockIndex, setCurrentBlockIndex] = useState(null);
-  const [currentFlowName, setCurrentFlowName] = useState('');
+  const [currentFlowName, setCurrentFlowName] = useState("Comprehensive Technique Routine");
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -73,6 +125,12 @@ function App() {
   const [showNewFlowDialog, setShowNewFlowDialog] = useState(false);
   const [newFlowName, setNewFlowName] = useState('');
   const [currentMessage, setCurrentMessage] = useState('');
+  const [currentFlowId, setCurrentFlowId] = useState(null);
+  const [showSaveSuccess, setShowSaveSuccess] = useState(false);
+  const [showEncouragement, setShowEncouragement] = useState(false);
+  const [encouragementMessage, setEncouragementMessage] = useState('');
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [colorPickerAnchor, setColorPickerAnchor] = useState(null);
 
   const colors = [
     '#4CAF50', '#2196F3', '#FFC107', '#E91E63', '#9C27B0',
@@ -81,24 +139,6 @@ function App() {
 
   const newBlockRef = useRef(null);
   const newBlockInputRef = useRef(null);
-
-  const colorPalette = [
-    '#5271C4',
-    '#4A97B8',
-    '#45A177',
-    '#5C9D8F',
-    '#6EA35C',
-    '#93A545',
-    '#B8A53E',
-    '#D27F55',
-    '#D76663',
-    '#B2568E',
-    '#8A6FB3',
-    '#7387C2',
-    '#5967A1',
-    '#4A8475',
-    '#C7694B'
-  ];
 
   const encouragementMessages = [
     "Great job on that task! Now, let's tackle the next one with the same energy!",
@@ -119,9 +159,6 @@ function App() {
   ];
 
   useEffect(() => {
-    if (savedFlows.length === 0) {
-      setSavedFlows(STOCK_FLOWS);
-    }
     localStorage.setItem('savedFlows', JSON.stringify(savedFlows));
   }, [savedFlows]);
 
@@ -140,9 +177,7 @@ function App() {
       setIsRunning(true);
       if (currentBlockIndex === null) {
         setCurrentBlockIndex(0);
-      }
-      if (timeRemaining === 0) {
-        setTimeRemaining(blocks[currentBlockIndex !== null ? currentBlockIndex : 0].duration);
+        setTimeRemaining(blocks[0].duration);
       }
     }
   };
@@ -158,6 +193,10 @@ function App() {
     setDynamicTimeAdjustments({});
     setShowConfirmation(false);
   };
+
+  const getRandomColor = useCallback((palette) => {
+    return palette[Math.floor(Math.random() * palette.length)];
+  }, []);
 
   const addBlock = useCallback(() => {
     const newBlock = {
@@ -224,9 +263,13 @@ function App() {
   }, []);
 
   const handleBlockClick = useCallback((id) => {
-    if (!isRunning) {
-      const index = blocks.findIndex(block => block.id === id);
-      if (index !== -1 && index !== currentBlockIndex) {
+    const index = blocks.findIndex(block => block.id === id);
+    if (index !== -1) {
+      if (index === currentBlockIndex) {
+        // Toggle timer if clicking on the current block
+        setIsRunning(prevIsRunning => !prevIsRunning);
+      } else if (!isRunning) {
+        // Switch to the clicked block if the timer is not running
         setCurrentBlockIndex(index);
         setTimeRemaining(blocks[index].duration);
         setShowConfirmation(false);
@@ -235,10 +278,14 @@ function App() {
   }, [isRunning, blocks, currentBlockIndex]);
 
   const handleEditBlock = useCallback((id, field, value) => {
+    if (isRunning && currentBlockIndex !== null && blocks[currentBlockIndex].id === id) {
+      // Do nothing if trying to edit the currently running block
+      return;
+    }
     setBlocks(prevBlocks => prevBlocks.map(block => 
       block.id === id ? { ...block, [field]: value } : block
     ));
-  }, []);
+  }, [isRunning, currentBlockIndex, blocks]);
 
   const handleDeleteBlock = useCallback((id) => {
     setBlocks(prevBlocks => prevBlocks.filter(block => block.id !== id));
@@ -263,10 +310,11 @@ function App() {
   };
 
   const saveFlow = () => {
-    // Remove the check for empty blocks
     const newFlow = { 
-      name: currentFlowName || "Untitled Flow", // Provide a default name if none is set
+      id: currentFlowId,
+      name: currentFlowName,
       blocks: blocks.map(block => ({
+        id: block.id,
         name: block.name,
         color: block.color,
         duration: block.duration + (dynamicTimeAdjustments[block.id] || 0)
@@ -274,18 +322,18 @@ function App() {
     };
 
     setSavedFlows(prevFlows => {
-      const updatedFlows = prevFlows.map(seq => 
-        seq.name === newFlow.name ? newFlow : seq
-      );
-      if (!prevFlows.some(seq => seq.name === newFlow.name)) {
-        updatedFlows.push(newFlow);
+      const flowIndex = prevFlows.findIndex(flow => flow.id === newFlow.id);
+      if (flowIndex >= 0) {
+        // Update existing flow
+        return prevFlows.map(flow => flow.id === newFlow.id ? newFlow : flow);
+      } else {
+        // Add new flow
+        return [...prevFlows, newFlow];
       }
-      localStorage.setItem('savedFlows', JSON.stringify(updatedFlows));
-      return updatedFlows;
     });
 
     setDynamicTimeAdjustments({});
-    alert("Flow saved successfully!");
+    setShowSaveSuccess(true);
   };
 
   const loadFlow = () => {
@@ -299,6 +347,7 @@ function App() {
       isEditing: false
     })));
     setCurrentFlowName(flow.name);
+    setCurrentFlowId(flow.id);
     setCurrentBlockIndex(flow.blocks.length > 0 ? 0 : null);
     setTimeRemaining(flow.blocks.length > 0 ? flow.blocks[0].duration : 0);
     setIsRunning(false);
@@ -307,36 +356,41 @@ function App() {
     setIsSidebarOpen(false); // Close the sidebar
   };
 
-  // Modify the main timer useEffect
+  // Add this effect to handle changes in savedFlows
   useEffect(() => {
-    let intervalId;
-    if (isRunning && currentBlockIndex !== null && currentBlockIndex < blocks.length && !showConfirmation) {
-      intervalId = setInterval(() => {
-        setTimeRemaining(prevTime => {
-          if (prevTime > 0.1) {
-            return prevTime - 0.1;
-          } else {
-            clearInterval(intervalId);
-            setIsRunning(false);
-            setShowConfirmation(true);
-            audio.play();
-            // Select a random message when the timer runs out
-            const randomIndex = Math.floor(Math.random() * encouragementMessages.length);
-            setCurrentMessage(encouragementMessages[randomIndex]);
-            return 0;
-          }
-        });
-      }, 100);
+    if (savedFlows.length > 0 && !savedFlows.some(flow => flow.id === currentFlowId)) {
+      const firstAvailableFlow = savedFlows.find(flow => flow.id !== "today") || savedFlows[0];
+      handleLoadFlow(firstAvailableFlow);
     }
-    return () => clearInterval(intervalId);
-  }, [isRunning, currentBlockIndex, blocks, audio, showConfirmation]);
+  }, [savedFlows, currentFlowId]);
 
-  // Add this new useEffect to reset timeRemaining when changing blocks
-  useEffect(() => {
-    if (blocks.length > 0 && currentBlockIndex !== null && currentBlockIndex < blocks.length) {
-      setTimeRemaining(blocks[currentBlockIndex].duration);
+  const deleteFlow = (id) => {
+    if (id === "today") {
+      alert("The 'Today' routine cannot be deleted.");
+      return;
     }
-  }, [currentBlockIndex, blocks]);
+    
+    setSavedFlows(prevFlows => {
+      const updatedFlows = prevFlows.filter(flow => flow.id !== id);
+      
+      // If the deleted flow was the current one, reset the current flow
+      if (id === currentFlowId) {
+        const firstAvailableFlow = updatedFlows.find(flow => flow.id !== "today") || updatedFlows[0];
+        if (firstAvailableFlow) {
+          handleLoadFlow(firstAvailableFlow);
+        } else {
+          // If no flows left, reset to an empty state
+          setCurrentFlowId(null);
+          setBlocks([]);
+          setCurrentFlowName("");
+          setCurrentBlockIndex(null);
+          setTimeRemaining(0);
+        }
+      }
+      
+      return updatedFlows;
+    });
+  };
 
   const stopAudio = () => {
     audio.pause();
@@ -364,17 +418,6 @@ function App() {
     };
   }, [blocks]);
 
-  const deleteFlow = (name) => {
-    if (name === "Today") {
-      alert("The 'Today' routine cannot be deleted.");
-      return;
-    }
-    
-    const updatedFlows = savedFlows.filter(seq => seq.name !== name);
-    setSavedFlows(updatedFlows);
-    localStorage.setItem('savedFlows', JSON.stringify(updatedFlows));
-  };
-
   useEffect(() => {
     setDynamicTimeAdjustments({});
   }, [currentBlockIndex]);
@@ -384,14 +427,8 @@ function App() {
   };
 
   const handleColorPickerOpen = (blockId, event) => {
-    const rect = event.target.getBoundingClientRect();
-    const popupWidth = 180;
-    const popupHeight = 225;
-    setColorPickerPosition({ 
-      top: rect.top + window.scrollY - (popupHeight / 2) + (rect.height / 2), 
-      left: rect.left + window.scrollX - popupWidth - 10
-    });
     setActiveBlockId(blockId);
+    setColorPickerAnchor(event.currentTarget);
     setShowColorPicker(true);
   };
 
@@ -450,13 +487,13 @@ function App() {
             </div>
             {savedFlows.map((flow, index) => (
               flow.name !== "Today" && (
-                <div key={index} className="flow-item">
+                <div key={flow.id} className="flow-item">
                   <h4>{flow.name}</h4>
                   <div className="mini-blocks-container">
                     {flow.blocks.length > 0 ? (
                       flow.blocks.map((block, blockIndex) => (
                         <div
-                          key={blockIndex}
+                          key={`${flow.id}-${blockIndex}`}
                           className="mini-block"
                           style={{ backgroundColor: block.color }}
                         >
@@ -469,7 +506,7 @@ function App() {
                   </div>
                   <div className="flow-item-buttons">
                     <button onClick={() => handleLoadFlow(flow)}>Load</button>
-                    <button onClick={() => deleteFlow(flow.name)}>Delete</button>
+                    <button onClick={() => deleteFlow(flow.id)}>Delete</button>
                   </div>
                 </div>
               )
@@ -491,30 +528,90 @@ function App() {
   };
 
   const handleNewFlow = () => {
-    if (newFlowName.trim()) {
-      setCurrentFlowName(newFlowName);
-      setBlocks([]);
-      setCurrentBlockIndex(null);
-      setTimeRemaining(0);
-      setShowNewFlowDialog(false);
-      setNewFlowName('');
-    } else {
-      alert("Please enter a name for your new flow.");
+    if (!newFlowName.trim()) {
+      alert("Please enter a name for the new flow.");
+      return;
     }
+
+    const newFlowId = newFlowName.toLowerCase().replace(/\s+/g, '-');
+
+    // Check if a flow with this id already exists
+    if (savedFlows.some(flow => flow.id === newFlowId)) {
+      alert("A flow with this name already exists. Please choose a different name.");
+      return;
+    }
+
+    const newFlow = {
+      id: newFlowId,
+      name: newFlowName,
+      blocks: []
+    };
+
+    setSavedFlows(prevFlows => [...prevFlows, newFlow]);
+    setNewFlowName('');
+    setShowNewFlowDialog(false);
+
+    // Optionally, load the new flow immediately
+    handleLoadFlow(newFlow);
   };
 
-  // Add this effect to ensure stock flows are always present
+  const numberOfBlocks = blocks.length;
+  const blockHeight = 100; // Adjust this value based on your actual block height
+
   useEffect(() => {
-    setSavedFlows(currentFlows => {
-      const updatedFlows = [...currentFlows];
-      STOCK_FLOWS.forEach(stockFlow => {
-        if (!updatedFlows.some(flow => flow.id === stockFlow.id)) {
-          updatedFlows.push(stockFlow);
-        }
-      });
-      return updatedFlows;
-    });
-  }, []);
+    if (showSaveSuccess) {
+      const timer = setTimeout(() => {
+        setShowSaveSuccess(false);
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [showSaveSuccess]);
+
+  // Add this effect to handle the timer
+  useEffect(() => {
+    let timer;
+    if (isRunning && timeRemaining > 0 && !isTransitioning) {
+      timer = setInterval(() => {
+        setTimeRemaining((prevTime) => {
+          if (prevTime <= 1) {
+            clearInterval(timer);
+            handleBlockCompletion();
+            return 0;
+          }
+          return prevTime - 1;
+        });
+      }, 1000);
+    }
+
+    return () => clearInterval(timer);
+  }, [isRunning, timeRemaining, currentBlockIndex, blocks, isTransitioning]);
+
+  const handleBlockCompletion = () => {
+    setIsTransitioning(true);
+    setIsRunning(false);
+    setTimeRemaining(0); // Ensure the timer is set to 0
+    audio.play();
+    const randomMessage = encouragementMessages[Math.floor(Math.random() * encouragementMessages.length)];
+    setEncouragementMessage(randomMessage);
+    setShowEncouragement(true);
+  };
+
+  const handleCloseEncouragement = () => {
+    setShowEncouragement(false);
+    
+    // Move to the next block after the popup closes
+    if (currentBlockIndex < blocks.length - 1) {
+      const nextIndex = currentBlockIndex + 1;
+      setCurrentBlockIndex(nextIndex);
+      setTimeRemaining(blocks[nextIndex].duration);
+      setIsRunning(true); // Automatically start the next timer
+    } else {
+      setCurrentBlockIndex(null);
+    }
+    
+    setIsTransitioning(false);
+  };
 
   return (
     <div className={`App-container ${isSidebarOpen ? 'sidebar-open' : ''}`}>
@@ -529,9 +626,16 @@ function App() {
           </button>
           <h2>{currentFlowName || 'Untitled Flow'}</h2>
           <div className="flow-actions">
-            <button onClick={saveFlow} className="icon-button" aria-label="Save Flow">
-              <FaSave />
-            </button>
+            <div className="save-button-container">
+              <button onClick={saveFlow} className="icon-button" aria-label="Save Flow">
+                <FaSave />
+              </button>
+              {showSaveSuccess && (
+                <div className="save-success-icon">
+                  <FaCheck />
+                </div>
+              )}
+            </div>
             <button onClick={createNewFlow} className="icon-button" aria-label="Create New Flow">
               <FaPlus />
             </button>
@@ -553,17 +657,17 @@ function App() {
               <FaUndo />
             </button>
           </div>
-          <div className="timer-flow">
+          <div className="timer-flow" style={{ position: 'relative' }}>
             {blocks.map((block, index) => (
               <TimerBlock
                 key={block.id}
                 block={block}
                 isActive={index === currentBlockIndex}
                 isCompleted={index < currentBlockIndex}
-                currentTime={index === currentBlockIndex ? timeRemaining : block.duration}
+                currentTime={index === currentBlockIndex ? (isTransitioning ? 0 : timeRemaining) : block.duration}
                 blockDuration={block.duration}
                 dynamicAdjustment={dynamicTimeAdjustments[block.id] || 0}
-                isRunning={isRunning}
+                isRunning={isRunning && !isTransitioning}
                 onBlockClick={handleBlockClick}
                 onEditBlock={handleEditBlock}
                 onDeleteBlock={handleDeleteBlock}
@@ -613,18 +717,20 @@ function App() {
               <h2>Saved Flows</h2>
               <div className="flow-list">
                 {savedFlows.map((flow, index) => (
-                  <div key={index} className="flow-item">
-                    <h3>{flow.name}</h3>
-                    <div className="mini-blocks">
-                      {flow.blocks.map((block, blockIndex) => (
-                        <div key={blockIndex} className="mini-block" style={{backgroundColor: block.color}}>
-                          {block.name}
-                        </div>
-                      ))}
+                  flow.name !== "Today" && (
+                    <div key={flow.id} className="flow-item">
+                      <h3>{flow.name}</h3>
+                      <div className="mini-blocks">
+                        {flow.blocks.map((block, blockIndex) => (
+                          <div key={`${flow.id}-${blockIndex}`} className="mini-block" style={{backgroundColor: block.color}}>
+                            {block.name}
+                          </div>
+                        ))}
+                      </div>
+                      <button className="load-button" onClick={() => handleLoadFlow(flow)}>Load</button>
+                      <button className="delete-flow-button" onClick={() => deleteFlow(flow.id)}>×</button>
                     </div>
-                    <button className="load-button" onClick={() => handleLoadFlow(flow)}>Load</button>
-                    <button className="delete-flow-button" onClick={() => deleteFlow(flow.name)}>×</button>
-                  </div>
+                  )
                 ))}
               </div>
               <button onClick={() => setShowLoadDialog(false)}>Close</button>
@@ -639,8 +745,11 @@ function App() {
         <ColorPicker
           colors={colorPalette}
           onColorSelect={handleColorSelect}
-          onClose={() => setShowColorPicker(false)}
-          position={colorPickerPosition}
+          onClose={() => {
+            setShowColorPicker(false);
+            setColorPickerAnchor(null);
+          }}
+          anchorEl={colorPickerAnchor}
         />
       )}
       <svg width="0" height="0" style={{position: 'absolute'}}>
@@ -663,10 +772,19 @@ function App() {
             />
             <div className="save-dialog-buttons">
               <button onClick={handleNewFlow}>Create</button>
-              <button onClick={() => setShowNewFlowDialog(false)}>Cancel</button>
+              <button onClick={() => {
+                setShowNewFlowDialog(false);
+                setNewFlowName('');
+              }}>Cancel</button>
             </div>
           </div>
         </div>
+      )}
+      {showEncouragement && (
+        <EncouragementPopup
+          message={encouragementMessage}
+          onClose={handleCloseEncouragement}
+        />
       )}
     </div>
   );

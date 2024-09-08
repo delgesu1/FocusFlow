@@ -1,5 +1,6 @@
 import React, { memo, useState, useEffect, useCallback, useRef } from 'react';
 import TimeInput from './TimeInput';
+import './TimerBlock.css'; // Make sure to create this CSS file
 
 const TimerBlock = memo(({ 
   block, 
@@ -21,6 +22,21 @@ const TimerBlock = memo(({
   const [editedName, setEditedName] = useState(block.name);
   const [editedDuration, setEditedDuration] = useState(block.duration);
   const nameInputRef = useRef(null);
+  const [progress, setProgress] = useState(100);
+  const progressRef = useRef(null);
+  const animationRef = useRef(null);
+
+  // Function to lighten a color
+  const lightenColor = useCallback((color, percent) => {
+    const num = parseInt(color.replace("#",""), 16),
+          amt = Math.round(2.55 * percent),
+          R = (num >> 16) + amt,
+          G = (num >> 8 & 0x00FF) + amt,
+          B = (num & 0x0000FF) + amt;
+    return "#" + (0x1000000 + (R<255?R<1?0:R:255)*0x10000 + (G<255?G<1?0:G:255)*0x100 + (B<255?B<1?0:B:255)).toString(16).slice(1);
+  }, []);
+
+  const lighterColor = lightenColor(blockColor, 10); // 10% lighter
 
   useEffect(() => {
     setEditedName(block.name);
@@ -32,6 +48,26 @@ const TimerBlock = memo(({
       nameInputRef.current.focus();
     }
   }, [block.isEditing]);
+
+  useEffect(() => {
+    if (progressRef.current) {
+      const totalTime = blockDuration + dynamicAdjustment;
+      const remainingTime = Math.max(0, currentTime);
+      const progressPercentage = (remainingTime / totalTime) * 100;
+      
+      progressRef.current.style.transition = 'none';
+      progressRef.current.style.width = `${100 - progressPercentage}%`;
+      
+      if (isActive && isRunning) {
+        setTimeout(() => {
+          if (progressRef.current) {
+            progressRef.current.style.transition = `width ${remainingTime}s linear`;
+            progressRef.current.style.width = '100%';
+          }
+        }, 0);
+      }
+    }
+  }, [isActive, isRunning, currentTime, blockDuration, dynamicAdjustment]);
 
   const handleFinishEditing = useCallback(() => {
     onFinishEditing(block.id, editedName, editedDuration);
@@ -68,10 +104,26 @@ const TimerBlock = memo(({
 
   return (
     <div
-      className={`timer-bar ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}`}
-      style={{ background: blockColor }}
+      className={`timer-bar ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''} ${isActive && isRunning ? 'glowing' : ''}`}
+      style={{ 
+        background: blockColor, 
+        position: 'relative', 
+        overflow: 'visible', // Changed from 'hidden' to 'visible'
+        borderRadius: '8px', // Ensure the block has rounded corners
+      }}
       onClick={() => onBlockClick(block.id)}
     >
+      <div 
+        ref={progressRef}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          bottom: 0,
+          background: lighterColor, // Using lighterColor here
+          pointerEvents: 'none',
+        }}
+      />
       {block.isEditing ? (
         <div className="edit-container" onClick={(e) => e.stopPropagation()}>
           <input
@@ -108,13 +160,9 @@ const TimerBlock = memo(({
               </div>
             )}
             <span className="block-time">{displayTime}</span>
-            <button onClick={(e) => { e.stopPropagation(); onEditBlock(block.id, 'isEditing', true); }} className="edit-button">✎</button>
-            <button onClick={(e) => { e.stopPropagation(); onDeleteBlock(block.id); }} className="delete-button">✖</button>
-            <div className="color-input-wrapper" onClick={(e) => { e.stopPropagation(); onColorPickerOpen(block.id, e); }}>
-              <div
-                className="color-preview"
-                style={{ background: blockColor }}
-              />
+            <div className="block-action-buttons">
+              <button onClick={(e) => { e.stopPropagation(); onEditBlock(block.id, 'isEditing', true); }} className="edit-button">✎</button>
+              <button onClick={(e) => { e.stopPropagation(); onDeleteBlock(block.id); }} className="delete-button">✖</button>
             </div>
           </div>
         </>

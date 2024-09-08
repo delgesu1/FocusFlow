@@ -1,0 +1,129 @@
+@keyframes extravagantGlow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.7),
+                0 0 10px rgba(255, 255, 255, 0.5),
+                0 0 15px rgba(255, 255, 255, 0.3),
+                0 0 20px rgba(255, 255, 255, 0.1);
+  }
+  25% {
+    box-shadow: 5px 0 10px rgba(255, 255, 255, 0.9),
+                10px 0 20px rgba(255, 255, 255, 0.7),
+                15px 0 30px rgba(255, 255, 255, 0.5),
+                20px 0 40px rgba(255, 255, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(255, 255, 255, 1),
+                0 0 30px rgba(255, 255, 255, 0.8),
+                0 0 45px rgba(255, 255, 255, 0.6),
+                0 0 60px rgba(255, 255, 255, 0.4);
+  }
+  75% {
+    box-shadow: -5px 0 10px rgba(255, 255, 255, 0.9),
+                -10px 0 20px rgba(255, 255, 255, 0.7),
+                -15px 0 30px rgba(255, 255, 255, 0.5),
+                -20px 0 40px rgba(255, 255, 255, 0.3);
+  }
+}
+
+@keyframes subtlePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+.timer-bar.glowing {
+  animation: extravagantGlow 4s ease-in-out infinite, subtlePulse 2s ease-in-out infinite;
+  z-index: 10;
+}
+
+.timer-bar.glowing::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  border-radius: inherit;
+  background: inherit;
+  filter: blur(10px);
+  opacity: 0.7;
+  z-index: -1;
+}
+
+.timer-bar {
+  position: relative;
+  padding-left: 65px; /* Add left padding to make space for the play button */
+}
+
+.play-button-container {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 65px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.play-button {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+  line-height: 1;
+}
+
+.play-button span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.play-button.paused span::before {
+  content: '\25B6'; /* Unicode for play triangle */
+}
+
+.play-button.active span::before {
+  content: '\25A0'; /* Unicode for stop square */
+}
+
+.play-button:hover {
+  transform: scale(1.1);
+}
+
+.play-button:active {
+  transform: scale(0.95);
+}
+
+.block-name {
+  display: inline-block;
+  margin-left: 65px; /* Shift the block name to the right */
+}
+
+.timer-bar.glowing {
+  animation: extravagantGlow 4s ease-in-out infinite, subtlePulse 2s ease-in-out infinite;
+  z-index: 10;
+}
+
+.timer-bar.glowing::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  border-radius: inherit;
+  background: inherit;
+  filter: blur(10px);
+  opacity: 0.7;
+  z-index: -1;
+}

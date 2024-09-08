@@ -1,0 +1,93 @@
+/* Flow Indicator styles (currently disabled) */
+
+/*
+.flow-indicator {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.flow-line {
+    position: absolute;
+    left: 50%;
+    top: 20px;
+    bottom: 170px;
+    width: 12px;
+    background: linear-gradient(to bottom, #6e8efb, #a777e3);
+    border-radius: 6px;
+    transform: translateX(-50%);
+    box-shadow: 0 0 30px rgba(110, 142, 251, 1);
+    filter: blur(2px);
+    opacity: 0.72;
+    overflow: hidden;
+}
+
+.flow-line::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    right: -100%;
+    bottom: 0;
+    background: linear-gradient(to bottom, 
+        rgba(255, 255, 255, 0.6) 0%, 
+        rgba(255, 255, 255, 0.4) 50%, 
+        rgba(255, 255, 255, 0.2) 100%
+    );
+    filter: blur(6px);
+    opacity: 1;
+    animation: energyFlow 6s infinite ease-in-out;
+}
+
+@keyframes energyFlow {
+    0%, 100% {
+        transform: translateY(-30%) scale(1);
+        opacity: 0.8;
+    }
+    50% {
+        transform: translateY(30%) scale(1.5);
+        opacity: 1;
+    }
+}
+
+.flow-line::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -100%;
+    right: -100%;
+    bottom: -50%;
+    background: radial-gradient(
+        ellipse at center, 
+        rgba(110, 142, 251, 0.8) 0%, 
+        rgba(167, 119, 227, 0) 70%
+    );
+    filter: blur(8px);
+    opacity: 0.9;
+    animation: pulseGlow 4s infinite ease-in-out, flowDownwards 5s infinite linear;
+}
+
+@keyframes pulseGlow {
+    0%, 100% {
+        opacity: 0.7;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.6);
+    }
+}
+
+@keyframes flowDownwards {
+    0% {
+        background-position: 0% 0%;
+    }
+    100% {
+        background-position: 0% 200%;
+    }
+}
+*/
